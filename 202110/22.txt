@@ -1,0 +1,103 @@
+Back to Basics: Pointers and Memory - Ben Saks - CppCon 2020
+
+modern cpp avoid using raw pointers and arrays, instead, use shared_ptr, unique_ptr and stl container
+1) more interface
+2) more clearly
+3) have destructors that automatically release resource
+
+int *p1 = NULL; // traditional C
+int *p2 = 0; // traditional cpp
+int *p3 = nullptr; // modern cpp
+#define NULL 0 // #include <cstddef>, so although NULL is intended as pointer, it actually has an integer type
+
+void f(int i);
+void f(char *s);
+f(NULL); // call f(int i) not f(char *s), because NULL has integer type
+f(nullptr); // call f(char *), nullptr can convert to any pointer type, but to an integer type
+
+int *g() {
+  int i = 0;
+  ...
+  return &i;
+}
+int *pi = g(); // object lifetime less than pointer, pi is dangling pointer, undefined behaviour
+
+substrating two pointers is valid only when they point to same array(or one beyond the end), otherwise, undefined behaviour
+
+x[i] is a shorthand for *(x + i)
+
+int x[10], *p; // x is array type, p is pointer type, not equal
+p = x; // array type can decay to pointer type, x is momentary converted to &(x[0]), and then p = &x[0]
+sizeof(p) != sizeof(x); // 40 != 8, one proof for x and p is not same type
+alignof(p) != alignof(x); // 8 != 4
+// x = p is not illegal, also a proof
+
+array parameter is a pointer
+void foo(int *x); // sizeof(x) = 8
+void foo(int x[]); // sizeof(x) = 8;
+void foo(int x[10]); // sizeof(x) = 8;
+
+size_t is unsigned;
+ptrdiff_t is signed;
+ptrdiff_t delta = p - q; // -3
+when compare signed and unsigned value of same size, compiler first converts signed value to unsigned value
+
+cpp20 support both signed and unsigned sizes, such as non-member function ssize
+
+const T *p; // value const, so p = &y is legal, *p = y is illegal
+T const *p; // value const
+T *const p; // pointer const, so *p = y is legal, p = &y is illegal
+const T *const p; // value const and pointer const, both *p = y and p = &y is illegal
+T const *const p; // value const and pointer const
+T constexpr *p; // pointer const
+
+CV-Qualifiers: const and volatile. you can use volatile anywhere you can use const
+constexpr is not CV-Qualifiers
+cv_ini is safe to convert to cv_plus
+T *p;
+T const *pc;
+T volatile *pv;
+T const volatile *pcv;
+pcv = p; // safe
+pc = pv; // error, lose volatile
+
+T *t;
+G *g;
+t = g; // likely warning in C, error in cpp
+g = reinterpret_cast<g *>(t); // silence complaints, not safe, just make compiler silent
+D *d; // derived
+B *b = d; // derived convert to base is safe
+
+object of type (void *) can point to any data object
+T *t;
+G *g;
+void *v;
+v = t; // permitted in C and C++
+g = v; // permitted in C, error in C++
+g = (G *)v; // permitted in C and C++
+
+reference is pointer that automatically dereferenced each time
+int &ri = i; // int *const pi = &i;
+ri = j; // *pi = j;
+int &r; // error, need initialization
+int *const p; // may legal?
+
+int &f() {
+  int i;
+  ...;
+  retur i;
+} // dangling reference;
+
+enum month {
+  Jan, Feb, ..., Dec, month_end
+};
+typedef enum month month;
+for (month m = Jan; m < month_end; ++m) {
+} // compiles and executes in C, but doesn't compile in C++, as C++ don't have ++ opreator in enum type
+month &operator++(month &m) {
+  return m = static_cast<month>(m + 1);
+}
+
+
+pointers are good for iteration and implementing data structures
+references are for writing function interfaces
