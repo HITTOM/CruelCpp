@@ -1,0 +1,34 @@
+Back to Basics: Exceptions - Klaus Iglberger - CppCon 2020
+
+problems:
+1. time-overhead: exception-throw maybe cost 100x time of integer-returns
+2. make harder reason about functions
+3. rely on dynamic memory
+4. make binary size grow
+
+if (...)
+  throw std::runtion_error("...");
+
+try {
+  ...
+} catch (std::exception const& ex) {
+  ...
+}
+
+unhandled exception result in a call to std::terminate()
+1. no stack unwinding
+2. no destructors are called
+3. resources are potentially leaked
+
+not use exceptions, for
+a) errors occur frequently
+b) expected to fail
+c) guarantee certain response time even in error case
+d) for things should never happen(dereferencing nullptr, out-of-range access, use after free), these are bugs, should fix but not throw
+
+how to use
+a) build on std::exceptoin hierarchy
+b) throw rvalue
+c) catch by const reference(std::exception const& ex)
+
+RAII: resource acquisition is initialization
