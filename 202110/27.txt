@@ -1,0 +1,29 @@
+Back to Basics: Smart Pointers - Rainer Grimm - CppCon 2020
+(0~30min)
+smart pointers automatically manage lifetime of its resource
+
+unique_ptr:
+has no overhead of space or time compared to a raw pointer
+ptr = uniq.release();
+ptr = uniq.get();
+uniq.reset(ptr);
+uniq.get_deleter();
+std::make_unique(...);
+MyInt* int15 = new MyInt(15);
+unique_ptr<MyInt> p1(int15);
+unique_ptr<MyInt> p2(int15); // double free or some other behaviour
+
+shared_ptr:
+has reference to resource and counter
+cpp's answer to garbage collection
+have more/less overhead in space and time than raw pointer
+can have a given deleter: shared_ptr<int> share_ptr1(new int, Del());
+thread safe
+bool uni = sh.unique();
+int cnt = sh.use_count();
+A* ptr = sh.get();
+sh.reset(ptr);
+sh.get_deleter();
+make_shared(ptr);
+
+
